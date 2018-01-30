@@ -1,0 +1,191 @@
+﻿@using DR.Marvin.Dashboard.Helpers
+@using DR.Marvin.Dashboard.Models
+@using Microsoft.Ajax.Utilities
+@model DR.Marvin.Dashboard.Models.DashboardJob
+@{
+    var duration = TimeSpan.FromMilliseconds(Model.Duration);
+    TimeSpan? queueTime = null;
+    TimeSpan? runTime = null;
+    if (Model.Started.HasValue)
+    {
+        queueTime = Model.Started.Value - Model.Issued;
+        if (Model.EndTime.HasValue)
+        {
+            runTime = Model.EndTime - Model.Started;
+        }
+    }
+    var id = Model.Urn.Split(':').Last();
+    var audio = Model.DestionationFormat.Contains("audio");
+}
+<fieldset class="jobEntry">
+    <legend>
+        @Html.IdenticonFromString(Model.Urn, 24) @(string.IsNullOrEmpty(Model.Name) ? "Unnamed" : Model.Name)
+        @if (audio)
+        {
+            <img src="@Url.Content("~/Content/images/speaker.png")" alt="audio" />
+        }
+        else
+        {
+            <img src="@Url.Content("~/Content/images/television-test.png")" alt="video" />
+        }
+    </legend>
+    <p>
+        Urn : <b>
+            @Model.Urn
+            <a href="@Url.Action("Index", "LogViewer", new {environment = ViewBag.Environment, query = Model.Urn})" title="Log search">
+                <img src="@Url.Content("~/Content/images/script--exclamation.png")" alt="log" />
+            </a>
+            <a href="@MarvinHelper.JobDebugLink(ViewBag.EnvironmentApiRoot, Model.Urn)" title="Json Debug view" target="_blank">
+                <img src="@Url.Content("~/Content/images/json.png")" alt="json" />
+            </a>
+        </b>
+        @if (Model.State == "Running" || Model.State == "Queued")
+        {
+            <button style="float: right;" class="btn btn-danger btn-xs btnCancel" data-toggle="modal" data-target="#modal-cancel-@id">
+                <span class="fa fa-times"></span>
+                <img src="@Url.Content("~/Content/images/exclamation-red.png")" alt="exclamation" />
+                Cancel
+            </button>
+            <div class="modal fade" id="modal-cancel-@id" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        @using (var form = Html.BeginForm("Cancel", "Dashboard", FormMethod.Post))
+                {
+
+                    @Html.Hidden("jobUrn", Model.Urn)
+                            @Html.Hidden("environment", (string)ViewBag.Environment)
+                            <div class="modal-body">
+                                <img src="@Url.Content("~/Content/images/exclamation-large.png")" alt="exclamation" />
+                                <br />
+                                <b>Are you sure?</b>
+                                <br />
+                                This will cancel the job "@Model.Name"
+                                <br />
+                                <code>@Model.Urn</code>
+                                <br />
+                                <p class="env-@ViewBag.Environment">Current envoriment: @((string)ViewBag.Environment)</p>
+                                <br />
+                                <em>NB: the commands are queded and executed asynchronously. The dashboard may take up to 30 secounds to reflect the change.</em>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Yes, Cancel the Job" />
+                                <button type="button" class="btn btn-default" data-dismiss="modal">No, Cancel the Cancel</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </p>
+    <p>
+        Priority : <b>
+            @switch (Model.Priority)
+        {
+                case Priority.low:
+                    <img src="@Url.Content("~/Content/images/arrow-stop-270.png")" alt="low" />
+                    break;
+                case Priority.high:
+                    <img src="@Url.Content("~/Content/images/exclamation-red.png")" alt="high" />
+                    break;
+                case Priority.medium:
+                default:
+                    break;
+        }
+        @Model.Priority.ToString()
+        </b>
+
+        Duration : <b>@duration.ToString()</b>
+        Format : <b>@Model.SourceFormat <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> @Model.DestionationFormat</b>
+    </p>
+    <p>
+        @if (!string.IsNullOrEmpty(Model.SourceUrn))
+        {
+            <text>
+                Source: @Model.SourceUrn @*TODO: Add link to source system, with helper.*@
+            </text>
+            if (!string.IsNullOrEmpty(ViewBag.OndemandRoot) && Model.SourceUrn.StartsWith("urn:dr:od:distribution:distributeasset"))
+            {
+                var sourceId = Model.SourceUrn.Split(':').Last();
+                var onLink = MarvinHelper.OnLink(@ViewBag.OndemandRoot, @sourceId);
+
+                <a href="@onLink" title="@onLink" target="_blank">
+                    <img src="@Url.Content("~/Content/images/arrow.png")" alt="json" />
+                </a>
+            }
+        }
+    </p>
+
+    <p>
+        Issued : <b>@Model.Issued.ToLocalTime().ToString("g")</b>
+        DueDate : <b>@(Model.DueDate <= Model.Issued + TimeSpan.FromMinutes(1) ? "ASAP" : @Model.DueDate.ToLocalTime().ToString("g")) </b>
+
+        @if (queueTime.HasValue)
+        {
+            <text>Started : <b>@Model.Started.Value.ToLocalTime().ToString("g")</b>
+            Queue time : <b>@(queueTime.Value.ToString("g"))</b>
+            </text>
+            if (runTime.HasValue)
+            {
+                <text>EndTime : <b>@Model.EndTime.Value.ToLocalTime().ToString("g")</b>
+                Run time : <b>@(runTime.Value.ToString("g"))</b>
+                Ratio :<b> @((runTime.Value.TotalMilliseconds / duration.TotalMilliseconds).ToString("F"))</b>
+                </text>
+            }
+        }
+
+        @if (Model.EstimatedDone.HasValue)
+        {
+            <text>Estimated done : <b>@Model.EstimatedDone.Value.ToLocalTime().ToString("g")</b></text>
+        }
+    </p>
+    <p>
+        @if (!string.IsNullOrEmpty(Model.CurrentPluginUrn))
+        {
+            <text>Current plugin : <b>@Model.CurrentPluginUrn</b></text>
+        }
+        State: <b>@Model.State</b>
+    </p>
+
+    Progress :
+    @{
+        var failed = Model.State == "Failed" || Model.State == "Canceled";
+        var progress = failed ? 100 : (int)Model.PercentDone;
+        <div class="progress @(!failed && progress < 100 ? "progress-striped active" : ""))">
+            <div class="progress-bar @(failed ? "progress-bar-danger" : (progress == 100 ? "progress-bar-success" : ""))" role="progressbar" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="@progress" style="width: @progress%">
+                @progress%
+            </div>
+        </div>
+    }
+    @if ((Model.TaskPercentDone?.Any(t => t.Name != "None")).GetValueOrDefault(false))
+    {
+        <button class="showBtn btn btn-sm">
+            <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
+            Show Tasks
+        </button>
+        <div style="display: none;">
+            Tasks:
+            <table class="taskList">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Progress</th>
+                    <th>Percent of job</th>
+                </tr>
+                @for (var i = 0; i < Model.TaskPercentDone.Count; i++)
+                {
+                    var task = Model.TaskPercentDone[i];
+                    <tr>
+                        <td> @(i + 1) </td>
+                        <td> @task.Name </td>
+                        <td> @task.PercentDone % </td>
+                        <td> @task.PercentOfTotal % </td>
+                    </tr>
+                }
+            </table>
+            <button class="hideBtn btn btn-sm">
+                <span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span>
+                Hide Tasks
+            </button>
+        </div>
+    }
+</fieldset>

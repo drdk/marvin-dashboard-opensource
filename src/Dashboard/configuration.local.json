@@ -1,0 +1,23 @@
+﻿{
+  "Nodes": [
+    {
+      "Name": "localhost",
+      "Hosts": [ "localhost:9900" ],
+      "ClusterHost": "localhost:9900",
+      "DbCredentials": {
+        "Hostname": "localhost",
+        "User": "nunit",
+        "Password": "test",
+        "Catalog": "MarvinLocal"
+      }
+    }
+  ],
+  "Groups": [
+    {
+      "Name": "localhost",
+      "Url": "/api/",
+      "HealthCheck": "SystemStatus/GetAll",
+      "NodeConfiguration": "localhost"
+    }
+  ]
+}

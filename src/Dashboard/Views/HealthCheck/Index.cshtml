@@ -1,0 +1,25 @@
+﻿@section scripts
+{
+    <script type="text/javascript">
+        $(document)
+            .ready(function () {
+                $.get('@Url.Action("Check", "HealthCheck")',
+                    function (data) {
+                        $('#healthCheck').html(data);
+                    });
+            });
+    </script>
+}
+@{
+    ViewBag.Title = "Health checks";
+}
+
+<div id="healthCheck">
+    <div style="display: block; width: 100%; height: 400px; font-size: xx-large; text-align: center;">
+        <br />
+        <br />
+        Loading health checks...
+        <br />
+        <img src="@Url.Content("~/Content/images/loader.gif")" alt="spinner" />
+    </div>
+</div>

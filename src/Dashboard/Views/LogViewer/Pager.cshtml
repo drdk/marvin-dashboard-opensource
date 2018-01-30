@@ -1,0 +1,35 @@
+﻿@model DR.Marvin.Dashboard.Models.LogViewerModel
+
+@{
+    var atStart = Model.Skip == 0;
+    var atEnd = Model.Entries.Count < Model.Count;
+
+}
+<div style="text-align: center">
+    @if (!atStart)
+    { 
+        <a href="#" onclick="$('#Skip').val(0); $('#submit').click();">
+            <img src="@Url.Content("~/Content/images/arrow-stop-180.png")" alt="to start"/>
+        </a>
+        <a href="#" onclick="$('#Skip').val(@(Model.Skip - Model.Count)); $('#submit').click();">
+            <img src="@Url.Content("~/Content/images/arrow-180.png")" alt="back"/>
+        </a>
+    }
+    else
+    {
+        <img src="@Url.Content("~/Content/images/arrow-stop-180.png")" alt="to start" class="disabled"/>
+        <img src="@Url.Content("~/Content/images/arrow-180.png")" alt="back" class="disabled"/>
+    }
+    @if (!atEnd)
+    {
+        <a href="#" onclick="$('#Skip').val(@(Model.Skip + Model.Count)); $('#submit').click();">
+            <img src="@Url.Content("~/Content/images/arrow.png")" alt="forward"/>
+        </a>
+    }
+    else
+    {
+        <img src="@Url.Content("~/Content/images/arrow.png")" alt="forward" class="disabled"/>
+    }
+    <br/>
+    Shows entry @Model.Skip to @(Model.Skip + (atEnd ? Model.Entries.Count : Model.Count - 1)).
+</div>

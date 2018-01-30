@@ -1,0 +1,206 @@
+﻿
+@using DR.Marvin.Dashboard.Models
+@using DR.Marvin.Dashboard.Helpers
+@using DR.Marvin.Dashboard.Model
+@model LogViewerModel
+
+@{
+    ViewBag.Title = $"{Model.Environment} Log Viewer";
+}
+@section scripts
+{
+    <script type="text/javascript">
+        function blinkSubmit() {
+            var btn = $('#submit');
+            if (btn.val() !== "Search") {
+                btn.fadeOut(100);
+                btn.val("Search");
+                btn.fadeIn(100);
+            }
+        };
+
+        $(document)
+            .ready(function () {
+                $('#Query').keyup(blinkSubmit);
+                $('#LogLevel').change(blinkSubmit);
+                $('.urnFilter')
+                    .click(function () {
+                        var urn = $(this).data('urn');
+                        $('#Query').val(urn);
+                        $('#submit').click();
+                    });
+            });
+    </script>
+}
+
+@using (Html.BeginForm("Index", "LogViewer", FormMethod.Get))
+{
+    <h2>
+        @Model.Environment Log Viewer
+    </h2>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Filter: <em style="font-size: smaller;">Entries for the last week</em></div>
+        <div class="panel-body">
+            <div class="input-group input-group-sm">
+                @Html.HiddenFor(m => m.Environment)
+                @*@Html.LabelFor(m => m.Environment, "Environment:") @Html.DropDownListFor(m => m.Environment, Model.Environments.Select((a,i) => new SelectListItem
+            {
+                Selected = (a==null && i==0) || Model.Environment == a,
+                Text = a
+            }))*@
+                @Html.HiddenFor(m => m.ApplicationQuery)
+                @*@Html.LabelFor(m => m.ApplicationQuery, "Application:") @Html.DropDownListFor(m => m.ApplicationQuery, Model.ApplicationNames.Select(a => new SelectListItem
+            {
+                Selected = Model.ApplicationQuery == a,
+                Text = string.IsNullOrEmpty(a) ? "All" : a,
+                Value = a ?? ""
+            }))*@
+
+
+                @Html.LabelFor(m => m.LogLevel, " LogLevel >= ")
+                @Html.DropDownListFor(m => m.LogLevel, 
+                new List<LogLevel?>() { null }.Concat(Model.ActiveLevels.Select(l => (LogLevel?)l))
+                    .Select(l => new SelectListItem
+                    {
+                        Selected = Model.LogLevel == l,
+                        Text = l == null ? "All" : l.ToString(),
+                        Value = l == null ? "" : ((int)l).ToString()
+                    }), new { @class = "form-control", style="width:100px;" })
+                <span>&nbsp;</span>
+                @Html.LabelFor(m => m.Query, " Message must contain: ")
+
+                @Html.TextBoxFor(m => m.Query, new { @class = "form-control", style="max-width: 100%; width:450px", })
+                <div class="input-group-btn">
+                    <input id="submit" type="submit" value="Refresh" style="width: 100px;" class="btn btn-default"/>
+                </div>
+                @Html.HiddenFor(m => m.Skip, new { Id = "Skip" })
+            </div>
+            
+        </div>
+    </div>
+    <div style="clear: both;"></div>
+    @Html.Partial("Pager", Model)
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            TimeStamp
+                        </th>
+                        <th>
+                            LogLevel
+                        </th>
+                        <th>
+                            Machine
+                        </th>
+                        <th colspan="5" width="70%">
+                            Message
+                        </th>
+                    </tr>
+                </thead>
+
+                @foreach (var logEntry in Model.Entries)
+                {
+
+                    var hasException = !string.IsNullOrEmpty(logEntry.ExceptionMessage);
+                    <tr>
+                        <td colspan="2" style="text-align: center">
+                            @logEntry.TimeStamp.ToLocalTime()
+                        </td>
+
+                        <td style="text-align: center; @(logEntry.LogLevel <= LogLevel.WARN ? "color: red;" : (logEntry.LogLevel >= LogLevel.DEBUG ? "color: gray;" :string.Empty))">
+                            @logEntry.LogLevel
+                        </td>
+                        <td>@logEntry.MachineName</td>
+                        <td colspan="4" style="font-weight: bold;">
+
+                            @Html.PrettyPrintWithLinks(logEntry.Message, Model.EnvironmentApiRoot)
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(logEntry.Urn))
+                    {
+                                <a class="urnFilter" data-urn="@logEntry.Urn">
+                                    @Html.IdenticonFromString(logEntry.Urn)
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                    var hasDetails = !string.IsNullOrEmpty(logEntry.Details);
+
+                    if (hasDetails) //has details
+                    {
+                        <tr class="hidden"></tr>
+                        <tr class="subrow">
+                            <td class="spacer" colspan="3"></td>
+                            <td>
+                                Details:
+                            </td>
+                            <td colspan="5">
+                                @if (hasDetails)
+                                {
+                                    <button class="showBtn btn btn-sm">
+                                        <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
+                                        Show
+                                    </button>
+
+                                    <div style="display: none;">
+                                        <p>
+                                            @Html.PrettyPrintWithLinks(logEntry.Details, Model.EnvironmentApiRoot)
+                                        </p>
+                                        <button class="hideBtn btn btn-sm">
+                                            <span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span>
+                                            Hide
+                                        </button>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+
+                    if (hasException)
+                    {
+                        <tr class="hidden"></tr>
+                        <tr class="subrow">
+                            <td class="spacer" colspan="3"></td>
+                            <td>
+                                Exception:
+                            </td>
+                            <td colspan="5" style="font-weight: bold;">
+                                <button class="showBtn btn btn-sm">
+                                    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
+                                    Show
+                                </button>
+                                <div style="display: none;">
+                                    <p>
+                                        @Html.PrettyPrintWithLinks(logEntry.ExceptionMessage, Model.EnvironmentApiRoot)
+                                    </p>
+
+                                    <button class="hideBtn btn btn-sm">
+                                        <span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span>
+                                        Hide
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @*Disabled stack trace
+
+                                <tr class="hidden"></tr>
+                            <tr class="subrow">
+                                <td class="spacer"></td>
+                                <td>
+                                    StackTrace:
+                                </td>
+                                <td colspan="8">
+                                    @if (!string.IsNullOrEmpty(logEntry.ExceptionStackTrace) && logEntry.ExceptionStackTrace != "-")
+                                    {
+                                        <button onclick=" this.nextElementSibling.className='' ;this.parentNode.removeChild(this); return false; ">Show</button>
+                                    }
+                                    <div class="hidden">@Html.PrettyPrintWithLinks(logEntry.ExceptionStackTrace))</div>
+                                </td>
+                            </tr>*@
+                    }
+                }
+            </table>
+            @Html.Partial("Pager", Model)
+            }

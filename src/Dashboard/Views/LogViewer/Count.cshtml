@@ -1,0 +1,55 @@
+﻿@model DR.Marvin.Dashboard.Models.LogCountModel
+
+@{
+    ViewBag.Title = $"{Model.Environment} Log Count Viewer";
+    var now = DateTime.Now.ToLocalTime();
+    var min = now.AddHours(-24);
+}
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    google.charts.load('current', { packages: ['corechart', 'bar'] });
+    google.charts.setOnLoadCallback(drawBasic);
+
+    function drawBasic() {
+        @foreach (var e in Model.Charts)
+        {
+            <text>
+                {
+                    var chartId = "chart_div_@e.Id";
+                    var data = new google.visualization.DataTable(@Html.Raw(e.Json));
+                    var options = {
+                        title: '@e.Title',
+                        hAxis: {
+                            title: 'Klokkeslet',
+                            format: 'HH:mm'
+                            ,
+                           viewWindow: {
+                                min: new Date(@min.Year, @min.Month - 1, @min.Day, @min.Hour,0,0),
+                                max: new Date(@now.Year, @now.Month - 1 , @now.Day, @now.Hour,0,0)
+                            }
+                        },
+                        vAxis: {
+                            title: 'Antal',
+                            format: '0',
+                            minValue: 4,
+                        },
+                        bar: { groupWidth: '75%' },
+                        isStacked: true,
+                        height : 500
+                    };
+                    var chart = new google.visualization.ColumnChart(document.getElementById(chartId));
+                    chart.draw(data, options);
+                }
+            </text>
+        }
+    }
+        </script>
+
+<h2>@Model.Environment Log Count Viewer</h2>
+
+@foreach(var e in Model.Charts)
+{
+    <div id="chart_div_@e.Id"></div>
+}

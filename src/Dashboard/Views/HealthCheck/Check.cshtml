@@ -1,0 +1,38 @@
+﻿@model DR.Marvin.Dashboard.Models.Check
+<link href="@Url.Content("~/Content/fluffer.css")" rel="stylesheet" type="text/css" />
+<div class="checkDisplay">
+    <h1 class="@(Model.AllPassed? "checkOk" : "checkFailed")">
+        Marvin Health Checks :
+        @(Model.AllPassed ? "OK" : "FAILED")
+    </h1>
+    
+    <div>Timestamp : @Model.TimeStamp.ToLocalTime() - Response time : @Math.Round(Model.Duration.TotalMilliseconds) ms</div>
+
+    @foreach (var group in Model.Groups)
+    {
+        <fieldset class="@(group.CheckPassed ? "checkOk" : "checkFailed")">
+            <legend>@group.Name : @(group.CheckPassed ? "OK" : "Failed")</legend>
+            <table>
+                @foreach (var node in @group.Nodes)
+                {
+                    <tr>
+                        <th class="@(node.CheckPassed.HasValue ? (node.CheckPassed.Value ? "checkOk" : "checkFailed") : "checkNull")">
+                            <a href="@node.CheckUri">@node.Name</a>
+                        </th>
+                        @if (node.Version != null)
+                        {
+                            <td>@node.Version.BuildTime</td>
+                            <td>@node.Version.GitHash</td>
+                        }
+                        @if (node.Exception != null)
+                        {
+                            <th>Exception:</th>
+                            <td>@node.Exception.Message</td>
+                        }
+                        <td class="time">@Math.Round(node.Time.TotalMilliseconds) ms</td>
+                    </tr>
+                }
+            </table>
+        </fieldset>
+    }
+</div>

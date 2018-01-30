@@ -1,0 +1,48 @@
+﻿{
+  "Nodes": [
+    /*
+    {
+      "Name": "Production Sample",
+      "Hosts": [ "Marvin01.sample.com:9900", "Marvin02.sample.com:9900", "Marvin03.sample.com:9900", "Marvin04.sample.com:9900" ],
+      "ClusterHost": "Marvin.sample.com:9900",
+      "TeamCityStatusIcon": "http://teamcity01.sample.com/app/rest/builds/buildType:Marvin_Master/statusIcon",
+      "TeamCityUri": "http://teamcity01.sample.com/viewType.html?buildTypeId=Marvin_Master",
+      "OndemandHost" :  "ondemand", 
+      "DbCredentials": {
+        "Hostname": "Marvindb.sample.com",
+        "User": "Marvin_RW",
+        "Password": "password",
+        "Catalog": "Marvin"
+      }
+    }*/
+    {
+      "Name": "localhost",
+      "Hosts": [ "localhost:9900" ],
+      "ClusterHost": "localhost:9900",
+      "TeamCityStatusIcon": null,
+      "TeamCityUri": null,
+      "OndemandHost" :  null, 
+      "DbCredentials": {
+        "Hostname": ".",
+        "User": "nunit",
+        "Password": "test",
+        "Catalog": "MarvinLocal"
+      }
+    }
+  ],
+  "Groups": [
+    /*{
+      "Name": "Production API",
+      "Url": "/",
+      "HealthCheck": "api/SystemStatus/GetAll",
+      "NodeConfiguration": "Production Sample"
+    },*/
+  
+    {
+      "Name": "Localhost API",
+      "Url": "/",
+      "HealthCheck": "api/SystemStatus/GetAll",
+      "NodeConfiguration": "localhost"
+    }
+  ]
+}

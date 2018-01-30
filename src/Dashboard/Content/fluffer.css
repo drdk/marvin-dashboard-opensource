@@ -1,0 +1,55 @@
+﻿div.checkDisplay {
+    font-family: sans-serif;
+}
+
+    div.checkDisplay fieldset {
+        margin: 20px;
+    }
+
+    div.checkDisplay table {
+        font-family: monospace;
+        border-color: black;
+        border-width: 2px;
+        border-style: solid;
+    }
+
+        div.checkDisplay table th {
+            width: 200px;
+        }
+
+        div.checkDisplay table td, th {
+            border-color: darkgray;
+            border-width: 1px;
+            border-style: dotted;
+            padding: 4px;
+        }
+
+
+            th.checkOk {
+                background-color: lightgreen;
+            }
+
+            th.checkFailed {
+                background-color: lightcoral;
+            }
+
+            td.time {
+                width: 65px;
+                text-align: right;
+            }
+
+fieldset.checkOk legend {
+    background-color: lightgreen;
+}
+
+fieldset.checkFailed legend {
+    background-color: lightcoral;
+}
+
+h1.checkOk {
+     background-color: lightgreen;
+}
+
+h1.checkFailed {
+    background-color: lightcoral;
+}

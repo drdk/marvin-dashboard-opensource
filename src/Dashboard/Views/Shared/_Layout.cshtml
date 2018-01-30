@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Marvin Dashboard</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-brand">Marvin</div>
+            </div>
+            <div class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <img src="@Url.Content("~/Content/images/system-monitor-network.png")" alt="monitor" />
+                            Dashboard
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            @{
+                                foreach (var env in MvcApplication.Configuration.Nodes)
+                                {
+                                    <li>
+                                        @Html.ActionLink(env.Name, "Index", "Dashboard", new { environment = env.Name }, null)
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Index", "HealthCheck")">
+                            <img src="@Url.Content("~/Content/images/traffic-light.png")" alt="traffic-lights"/>
+                            Health Checks
+                        </a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <img src="@Url.Content("~/Content/images/script--exclamation.png")" alt="script-exclamation"/>
+                            Log Viewer
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            @{
+                                foreach (var env in MvcApplication.Configuration.Nodes)
+                                {
+                                    <li>
+                                        @Html.ActionLink(env.Name, "Index", "LogViewer", new {environment = env.Name}, null)
+                                    </li>
+                                }
+                                <li role="separator" class="divider"></li>
+                                foreach (var env in MvcApplication.Configuration.Nodes)
+                                {
+                                    <li>
+                                        @Html.ActionLink($"Graph for {env.Name}", "Count", "LogViewer", new {environment = env.Name}, null)
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <img src="@Url.Content("~/Content/images/robot.png")" alt="robot"/>
+                            APIs
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            @{
+                                foreach (var env in MvcApplication.Configuration.Nodes)
+                                {
+                                    <li>
+                                        <a href="@($"http://{env.ClusterHost}")" target="_blank">
+                                            <span class="glyphicon glyphicon-link" aria-hidden="true"></span> @($"{env.Name}")
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                </ul>
+                <p class="nav navbar-text navbar-right">Hello, @User.Identity.Name!</p>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>
+                <span style="font-weight: bold">
+                    Build status:
+                </span>
+
+
+                @{
+                    foreach (var node in MvcApplication.Configuration.Nodes)
+                    {
+                        <span>
+                            @node.Name -
+                            <a href="@node.TeamCityUri">
+                                <img src="@($"{node.TeamCityStatusIcon}")" />
+                            </a> |
+                        </span>
+                    }
+                }
+                MMXVI - DR TU Streaming
+            </p>
+            <p style="font-size: smaller">Some icons by <a href="http://p.yusukekamiyamane.com/">Yusuke Kamiyamane</a>. Licensed under a <a href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 License</a>.</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/scripts/dashboard.js")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

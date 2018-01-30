@@ -1,0 +1,85 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+img.disabled {
+    filter: gray;
+    -webkit-filter: grayscale(100%); 
+}
+
+a img {
+    border: 0px;
+}
+
+a:hover {
+    text-decoration: none;
+}
+tr.subrow {
+    font-size: small;
+}
+
+
+tr.subrow td {
+    border-top: none !important;
+    }
+
+fieldset.jobEntry {
+    font-size: smaller;
+    
+    border: 1px lightgray groove;
+    padding: 10px; 
+    border-radius: 4px;
+    background-color: #f2f2f2;
+    margin: 5px;
+
+}
+fieldset.jobEntry legend {
+    font-size: 18px;
+    border: 1px #f2f2f2 solid;
+    background-color:  white;
+    margin-bottom: 0px;
+    width: initial;
+    padding: 0px;
+    padding-right: 6px;
+    border-radius: 0px; 
+    box-shadow: 2px 2px 2px #888888;
+}
+
+.env-Production{
+    background-color: pink;
+    border: 2px red dashed;
+    padding: 5px;
+
+}
+h2.env-Production:before {
+    content: url(images/exclamation-large.png);
+    padding-right: 10px;
+}
+table.taskList {
+    border: 1px black solid;
+}
+table.taskList th, table.taskList td {
+    border: 1px gray dotted;
+    padding: 5px;
+}

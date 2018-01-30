@@ -1,0 +1,82 @@
+﻿@using DR.Marvin.Dashboard.Models
+@model DR.Marvin.Dashboard.Models.Dashboard
+
+@{
+    ViewBag.Title = $"{Model.Environment} Dashboard";
+    ViewBag.Environment = @Model.Environment;
+}
+
+<h2 class="env-@Model.Environment">@($"{Model.Environment} Dashboard")</h2>
+<span>Table of content:</span>
+
+<ul>
+    <li><a href="#waiting">Waiting jobs : @Model.Info.WaitingJobs.Count</a></li>
+    <li><a href="#active">Active jobs : @Model.Info.ActiveJobs.Count</a></li>
+    <li><a href="#done">Recently* done jobs : @Model.Info.RecentlyDoneJobs.Count</a></li>
+    <li><a href="#failed">Recently* failed jobs : @Model.Info.RecentlyFailedJobs.Count</a></li>
+    <li><a href="#canceled">Recently* canceled jobs : @Model.Info.RecentlyCanceledJobs.Count</a></li>
+</ul>
+<small>Recently* = in the last hour. Page generated: @Model.TimeStamp.ToLocalTime().ToString("g")</small>
+
+<button class="showBtn btn btn-sm">
+    <span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span>
+    Show Plugins
+</button>
+<div style="display: none;">
+    <h3>Plugins:</h3>
+    <ul>
+        @foreach (var pluginGroup in Model.Info.Plugins.GroupBy(p => p.PluginType))
+        {
+            <li>
+                @pluginGroup.Key
+                <ul>
+                    @foreach (var plugin in pluginGroup)
+                    {
+                        <li>@plugin.Urn</li>
+                    }
+                </ul>
+            </li>
+        }
+    </ul>
+    <button class="hideBtn btn btn-sm">
+        <span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span>
+        Hide Plugins
+    </button>
+</div>
+
+
+<h3>
+    <a id="waiting">Waiting jobs</a>
+</h3>
+@foreach (var job in Model.Info.WaitingJobs)
+{
+    Html.RenderPartial("Job", job);
+}
+<h3>
+    <a id="active">Active jobs</a>
+</h3>
+@foreach (var job in Model.Info.ActiveJobs)
+{
+    Html.RenderPartial("Job", job);
+}
+<h3>
+    <a id="done">Recently* done jobs</a>
+</h3>
+@foreach (var job in Model.Info.RecentlyDoneJobs)
+{
+    Html.RenderPartial("Job", job);
+}
+<h3>
+    <a id="failed">Recently* failed jobs</a>
+</h3>
+@foreach (var job in Model.Info.RecentlyFailedJobs)
+{
+    Html.RenderPartial("Job", job);
+}
+<h3>
+    <a id="canceled">Recently* canceled jobs</a>
+</h3>
+@foreach (var job in Model.Info.RecentlyCanceledJobs)
+{
+    Html.RenderPartial("Job", job);
+}
