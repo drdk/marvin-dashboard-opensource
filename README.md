@@ -1,3 +1,3 @@
 ## Marvin dashboard
 
-Status and log viewer for [http://github.com/drdk/marvin](Marvin)
+Status and log viewer for [Marvin](http://github.com/drdk/marvin)
